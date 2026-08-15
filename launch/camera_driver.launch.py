@@ -12,6 +12,7 @@ def generate_launch_description():
         package='camera_driver',
         executable='main_node',
         name='camera_driver',
+        prefix=['nsys profile --sample=cpu --trace=cuda,nvtx,osrt --output=/home/ubuntu/nsight_profile/report1 --force-overwrite true'],
         output='screen',
         parameters=[params_file]
     )
