@@ -1,0 +1,31 @@
+# camera_driver ノード用のパラメータファイル
+# このファイルは launch 時に `--ros-args --params-file` で読み込めます。
+camera_driver:
+  ros__parameters:
+    # 時刻にシミュレーション時間を使うか
+    use_sim_time: false
+
+    # GPU/CUDA を使用するか
+    use_gpu: false
+
+    # OpenCV を使用するか（ソフトウェアでの YUV->RGBA 変換に利用）
+    use_opencv: true
+
+    # カメラデバイスファイル
+    device_file: "/dev/video0"
+
+    # カメラフレームID
+    camera_frame_id: "camera"
+
+    # 画像パブリッシュ頻度 (Hz)
+    image_publish_hz: 10
+
+    # カメラ情報（CameraInfo）パブリッシュ頻度 (Hz)
+    info_publish_hz: 1
+
+    # バッファ数
+    n_buffers: 4
+
+    # 元画像の解像度
+    original_height: 656
+    original_width: 1184

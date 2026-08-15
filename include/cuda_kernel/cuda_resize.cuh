@@ -8,4 +8,4 @@ namespace cuda_kernel
     __global__ void testsumArrayKernel(float *C, float *A, float *B);
 }
 
-#endif // CUDA_RESIZE_CUH
+#endif //CUDA_RESIZE_CUH

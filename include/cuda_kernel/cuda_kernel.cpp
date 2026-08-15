@@ -58,4 +58,84 @@ namespace cuda_kernel
         CUDA_CHECK(cudaFree(B));
         CUDA_CHECK(cudaFree(testsumArrayKernel));
     }
+
+    void launchYUV422ToRGBA8_CUDAKernel(const std::vector<std::uint8_t>& yuyv, 
+        std::vector<std::uint8_t>& rgba, int width, int height, std::optional<std::string>& error_string)
+    {
+        int num_blocks = (width * height) / 2;
+        size_t yuyv_size = yuyv.size();
+        size_t rgba_size = rgba.size();
+
+        //GPU上の保存されているアドレスを保管するための変数
+        std::uint8_t *d_yuyv, *d_rgba;
+
+        // GPUメモリ(VRAM)の確保
+        cudaMalloc((void **)&d_yuyv, yuyv_size);
+        cudaMalloc((void **)&d_rgba, rgba_size);
+
+        // ホスト(CPU)からデバイス(GPU)へ入力データを転送
+        cudaMemcpy(d_yuyv, yuyv.data(), yuyv_size, cudaMemcpyHostToDevice);
+
+        // スレッド配置の設定(1ブロックあたり256スレッド)
+        int threadsPerBlock = 256;
+        int blocksPerGrid = (num_blocks + threadsPerBlock - 1) / threadsPerBlock;
+
+        // CUDAカーネル実行
+        yuv422_to_rgba8_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_yuyv, d_rgba, num_blocks);
+
+        // 同期とエラーチェック
+        cudaDeviceSynchronize();
+        cudaError_t err = cudaGetLastError();
+        if(err != cudaSuccess){
+            error_string = std::string("CUDA Error: ") + cudaGetErrorString(err);
+        }
+
+        // デバイス(GPU)からホスト(CPU)へ結果を転送
+        cudaMemcpy(rgba.data(), d_rgba, rgba_size, cudaMemcpyDeviceToHost);
+
+        // GPUメモリの解放
+        cudaFree(d_yuyv);
+        cudaFree(d_rgba);
+    }
+
+    void launchYUV422ToRGBA8_CUDAKernel(const std::uint8_t * yuyv, size_t yuyv_size,
+        std::vector<std::uint8_t>& rgba, int width, int height, std::optional<std::string>& error_string)
+    {
+        int num_blocks = (width * height) / 2;
+        size_t rgba_size = rgba.size();
+
+        std::uint8_t *d_yuyv, *d_rgba;
+
+        // GPUメモリ(VRAM)の確保
+        cudaMalloc((void **)&d_yuyv, yuyv_size);
+        cudaMalloc((void **)&d_rgba, rgba_size);
+
+        // ホスト(CPU)からデバイス(GPU)へ入力データを転送（ホストポインタ版）
+        cudaMemcpy(d_yuyv, yuyv, yuyv_size, cudaMemcpyHostToDevice);
+
+        int threadsPerBlock = 256;
+        int blocksPerGrid = (num_blocks + threadsPerBlock - 1) / threadsPerBlock;
+
+        yuv422_to_rgba8_gpu<<<blocksPerGrid, threadsPerBlock>>>(d_yuyv, d_rgba, num_blocks);
+
+        cudaDeviceSynchronize();
+        cudaError_t err = cudaGetLastError();
+        if(err != cudaSuccess){
+            error_string = std::string("CUDA Error: ") + cudaGetErrorString(err);
+        }
+
+        cudaMemcpy(rgba.data(), d_rgba, rgba_size, cudaMemcpyDeviceToHost);
+
+        cudaFree(d_yuyv);
+        cudaFree(d_rgba);
+    }
+
+    bool checkCUDA()
+    {
+        bool ret = false;
+        int device_count = 0;
+        cudaError_t err = cudaGetDeviceCount(&device_count);
+        ret = (err == cudaSuccess && device_count > 0);
+        return ret; 
+    }
 }
