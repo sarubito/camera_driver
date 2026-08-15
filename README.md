@@ -14,7 +14,7 @@ ROS2 用の Web カメラドライバ（Ubuntu 向け）
 
 ** レイテンシ計測 **
 - CPU処理(Intel CORE i7 (no opencv))
-- CPU処理(Intel CORE i7 (opencv))
+- CPU処理(Intel CORE i7 (opencv 4.6.0))
 - GPU処理(NVIDIA GeForce RTX 3070 (cuda13.3))
 
 **主な機能**
