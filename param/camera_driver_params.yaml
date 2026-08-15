@@ -6,10 +6,13 @@ camera_driver:
     use_sim_time: false
 
     # GPU/CUDA を使用するか
-    use_gpu: false
+    use_gpu: true
 
     # OpenCV を使用するか（ソフトウェアでの YUV->RGBA 変換に利用）
-    use_opencv: true
+    use_opencv: false
+
+    # 処理時間計測するか
+    measure_latency: true
 
     # カメラデバイスファイル
     device_file: "/dev/video0"

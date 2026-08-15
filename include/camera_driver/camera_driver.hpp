@@ -81,6 +81,7 @@ namespace camera_driver
             std::string output_encoding_;
             int original_height_;
             int original_width_;
+            bool measure_latency_;
 
             std::string device_file_;
 

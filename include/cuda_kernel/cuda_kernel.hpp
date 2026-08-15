@@ -34,6 +34,7 @@ namespace cuda_kernel
     void launchYUV422ToRGBA8_CUDAKernel(const std::uint8_t * yuyv, size_t yuyv_size,
         std::vector<std::uint8_t>& rgba, int width, int height, std::optional<std::string>& error_string);
     bool checkCUDA();
+    void freeCUDA();
 }
 
 #endif // CUDA_KERNEL_HPP

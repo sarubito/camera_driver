@@ -7,6 +7,7 @@ namespace camera_driver
     {
         this->declare_parameter("use_gpu", false);
         this->declare_parameter("use_opencv", false);
+        this->declare_parameter("measure_latency", false);
         this->declare_parameter("device_file", "/dev/video0");
         this->declare_parameter("camera_frame_id", "camera");
         this->declare_parameter("image_publish_hz", 10);
@@ -38,6 +39,8 @@ namespace camera_driver
 
     CameraDriver::~CameraDriver()
     {
+        freeCUDA();
+
         if(fd_ >= 0){
             if(stop()){
                 RCLCPP_INFO(logger_, "Stop Camera Capture");
@@ -247,6 +250,7 @@ namespace camera_driver
         use_sim_time_ = this->get_parameter("use_sim_time").as_bool();
         use_gpu_ = this->get_parameter("use_gpu").as_bool();
         use_opencv_ = this->get_parameter("use_opencv").as_bool();
+        measure_latency_ = this->get_parameter("measure_latency").as_bool();
 
         device_file_ = this->get_parameter("device_file").as_string();
         camera_frame_id_ = this->get_parameter("camera_frame_id").as_string();
@@ -419,8 +423,20 @@ namespace camera_driver
         // ユーザー空間にマッピングされた先のアドレスを取得
         const std::uint8_t * data_ptr = static_cast<const std::uint8_t *>(buffer.start);
 
+        std::chrono::system_clock::time_point start, end;
+        if(measure_latency_){
+            start = std::chrono::system_clock::now();
+        }
         // mmap されたバッファから直接変換（コピーを省く）
         yuyv422_to_rgba8(data_ptr, fmt_.fmt.pix.sizeimage, rgba_image_data);
+        if(measure_latency_){
+            end = std::chrono::system_clock::now();
+            double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
+            if(use_gpu_) RCLCPP_INFO(logger_, "GPU process time : %f microsec", elapsed);
+            else if(use_opencv_) RCLCPP_INFO(logger_, "CPU(opencv) process time : %f microsec", elapsed);
+            else RCLCPP_INFO(logger_, "CPU(without opencv) process time : %f microsec", elapsed);
+        }
+
 
         // 生成したRGBAデータをコピーせずムーブしてROSメッセージに格納
         // 補足: ここでムーブすることで大きなバッファの二重コピーを避ける
