@@ -12,6 +12,11 @@ ROS2 用の Web カメラドライバ（Ubuntu 向け）
 - 変換は GPU (CUDA) と CPU の両方に対応します。CPU 動作時は OpenCV を用いる経路と、OpenCV を使わない軽量な経路の切り替えが可能です。
 - 動作確認には、Logitech, Inc. Webcam C270を使用。
 
+** レイテンシ計測 **
+- CPU処理(Intel CORE i7 (no opencv))
+- CPU処理(Intel CORE i7 (opencv))
+- GPU処理(NVIDIA GeForce RTX 3070 (cuda13.3))
+
 **主な機能**
 - MMAP ベースの V4L2 バッファ管理（`VIDIOC_REQBUFS` / `VIDIOC_QUERYBUF` / `mmap` / `VIDIOC_QBUF` / `VIDIOC_DQBUF`）
 - ノンブロッキング動作（`O_NONBLOCK`）でタイマーやエグゼキュータを阻害しない設計
