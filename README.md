@@ -23,7 +23,7 @@ ROS2 用の Web カメラドライバ（Ubuntu 向け）
 
 ```bash
 colcon build --symlink-install --packages-up-to camera_driver
-. install/setup.bash
+source install/setup.bash
 ```
 
 **実行**
@@ -36,7 +36,7 @@ ros2 run camera_driver main_node
 - launch ファイルから起動する例（インストール済みの launch ディレクトリを使用）:
 
 ```bash
-ros2 launch camera_driver launch/launch.py
+ros2 launch camera_driver camera_driver.launch.py
 ```
 
 **ノードパラメータ（主なもの）**
